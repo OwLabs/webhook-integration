@@ -1,20 +1,28 @@
 # Discord x GitHub User Integration
 
-This document explains how to configure GitHub to Discord user mention mappings for automatic PR author notifications.
+This document explains how to configure GitHub to Discord user mention mappings for automatic PR notifications.
 
 ## Overview
 
-When someone reviews a pull request, the system can automatically ping the PR author on Discord. This enables instant feedback loops so PR authors know immediately when:
+When someone interacts with a pull request, relevant users can be automatically pinged on Discord.
 
-- Someone approves their PR
-- Someone requests changes on their PR
+**Who gets mentioned:**
+- **PR Author** - When someone else acts on their PR (reviews, comments, etc.)
+- **Requested Reviewer** - When someone requests them to review a PR
+
+This enables instant feedback loops so:
+- PR authors know when someone reviews, comments, or requests changes
+- Reviewers know when someone requests them to review
+
+**Supported:** All PR-related events (reviews, comments, status changes, etc.)
 
 ## How It Works
 
-1. GitHub sends a `pull_request_review` webhook event
-2. The server checks if the reviewer is different from the PR author
-3. If the review state is `approved` or `changes_requested`, a ping is sent
-4. The ping uses Discord user IDs via the webhook `content` field (not inside embeds)
+1. GitHub sends a webhook event for any PR-related activity
+2. The server checks:
+   - If the sender is different from the PR author → mention PR author
+   - If a reviewer was requested → mention requested reviewer
+3. If mapped users exist, pings are sent via Discord webhook `content` field
 
 ## Configuration
 
@@ -51,17 +59,36 @@ pm2 restart github-webhook
 
 ## Behavior Matrix
 
-| Scenario | Discord Message |
-|----------|-----------------|
-| Someone else approves your PR | Embed + `@YourDiscordName` ping |
-| Someone requests changes | Embed + `@YourDiscordName` ping |
-| You review your own PR | Embed only (no ping) |
-| Comment-only review | Embed only (no ping) |
-| Unmapped GitHub user | Embed only (warning logged) |
+| Scenario | Who gets mentioned |
+|----------|-------------------|
+| Someone else approves your PR | PR author |
+| Someone requests changes | PR author |
+| Someone comments on your PR | PR author |
+| You request someone to review | Requested reviewer |
+| Someone else requests review | Requested reviewer + PR author |
+| You take any action on your PR | No one |
+| Unmapped GitHub user | No one |
 
 ## Example Scenarios
 
-### Scenario 1: Approved PR
+### Scenario 1: Review Requested
+
+**GitHub Event:**
+- PR Author: `alexdev`
+- Sender: `alexdev`
+- Requested Reviewer: `sarahcode`
+- Action: `review_requested`
+
+**Discord Message:**
+```
+@sarahcode
+┌─────────────────────────────┐
+│ 👀 Review requested         │
+│ ...                         │
+└─────────────────────────────┘
+```
+
+### Scenario 2: Approved PR
 
 **GitHub Event:**
 - PR Author: `alexdev`
@@ -77,33 +104,50 @@ pm2 restart github-webhook
 └─────────────────────────────┘
 ```
 
-### Scenario 2: Self-Review
+### Scenario 3: Someone Else Requests Review on Your PR
 
 **GitHub Event:**
 - PR Author: `alexdev`
-- Reviewer: `alexdev`
-- Review State: `approved`
+- Sender: `mike`
+- Requested Reviewer: `sarahcode`
+- Action: `review_requested`
+
+**Discord Message:**
+```
+@sarahcode @alexdev
+┌─────────────────────────────┐
+│ 👀 Review requested         │
+│ ...                         │
+└─────────────────────────────┘
+```
+
+### Scenario 4: Self-Action
+
+**GitHub Event:**
+- PR Author: `alexdev`
+- Actor: `alexdev`
+- Action: Any (comment, review, etc.)
 
 **Discord Message:**
 ```
 ┌─────────────────────────────┐
-│ ✅ Review approved          │
+│ 💬 Review comment           │
 │ ...                         │
 └─────────────────────────────┘
 ```
-(No ping - reviewer is the author)
+(No ping - actor is the author)
 
-### Scenario 3: Unmapped User
+### Scenario 5: Unmapped User
 
 **GitHub Event:**
 - PR Author: `new-dev`
 - Reviewer: `sarahcode`
-- Review State: `changes_requested`
+- Action: Comment
 
 **Discord Message:**
 ```
 ┌─────────────────────────────┐
-│ 🔄 Changes requested        │
+│ 💬 New comment              │
 │ ...                         │
 └─────────────────────────────┘
 ```
@@ -134,7 +178,8 @@ pm2 restart github-webhook
    ```
    Look for:
    - `⚠️ No Discord mapping found for GitHub user: xxx`
-   - `🔔 Pinging PR author: xxx -> <@...>`
+   - `🔔 Will ping PR author/reviewer: xxx -> <@...>`
+   - `🔔 Final mentions: <@...> <@...>`
 
 ### Pings Going to Wrong User
 
@@ -143,10 +188,9 @@ pm2 restart github-webhook
 
 ### Seeing the Embed But No Ping
 
-1. Check if it's a self-review (same user)
-2. Verify the review state is `approved` or `changes_requested`
-3. Confirm the GitHub username is in the ENV variables
-4. Check logs for warning messages
+1. Check if it's a self-action (same user)
+2. Confirm the GitHub usernames are in the ENV variables
+3. Check logs for warning messages
 
 ## Security Considerations
 
@@ -168,5 +212,5 @@ Potential improvements (not currently implemented):
 
 - **Config:** `src/config/user-map.ts` (reads from ENV)
 - **Helper:** `src/utils/mention.ts` (case-insensitive matching)
-- **Handler:** `src/handlers/webhook.ts` (lines 73-95)
+- **Handler:** `src/handlers/webhook.ts` (PR mention logic)
 - **ENV Example:** `.env.example`

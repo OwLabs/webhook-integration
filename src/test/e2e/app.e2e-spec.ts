@@ -1,5 +1,5 @@
 import express from "express";
-import { handleWebhook } from "../../handlers/webhook";
+import { handleWebhook } from "../../handlers/webhook.js";
 
 describe("E2E: Github Webhook", () => {
   it("should have the handler defined", () => {

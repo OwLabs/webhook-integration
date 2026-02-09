@@ -1,3 +1,4 @@
+ 
 const { createDefaultPreset } = require("ts-jest");
 
 const tsJestTransformCfg = createDefaultPreset().transform;
@@ -9,8 +10,12 @@ module.exports = {
     ...tsJestTransformCfg,
   },
   testMatch: [
-    "**/test/**/*.[jt]s?(x)",
-    "**/?(*.)+(spec|test).[jt]s?(x)",
-    "**/?(*.)+(e2e-spec).[jt]s?(x)",
+    "**/src/test/**/*.[jt]s?(x)",
+    "**/src/**/?(*.)+(spec|test).[jt]s?(x)",
+    "**/src/**/?(*.)+(e2e-spec).[jt]s?(x)",
   ],
+  testPathIgnorePatterns: ["dist/"],
+  moduleNameMapper: {
+    "^(\\.{1,2}/.*)\\.js$": "$1",
+  },
 };
