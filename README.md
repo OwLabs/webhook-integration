@@ -9,6 +9,8 @@ A Node.js + TypeScript server that receives GitHub webhook events and forwards t
 - **Clean Discord embeds** - Short, readable messages with consistent colors
 - **All branch support** - Push events work on any branch
 - **Modular architecture** - Well-organized codebase for easy maintenance
+- **Rate limiting** - Built-in protection against DoS attacks (100 req/15min by default)
+- **PR mentions** - Auto-mention PR authors and reviewers on Discord
 
 ## Supported Events
 
@@ -45,13 +47,16 @@ DISCORD_WEBHOOK_INTEGRATION=https://discord.com/api/webhooks/...
 | `PORT` | Server port | `3000` |
 | `DISCORD_WEBHOOK_*` | Discord webhook URLs for each repo | - |
 | `DISCORD_USER_*` | GitHub username to Discord user ID mappings | - |
+| `RATE_LIMIT_WINDOW_MS` | Rate limit time window in milliseconds | `900000` (15 min) |
+| `RATE_LIMIT_MAX` | Max requests per time window per IP | `100` |
 
 ### Verifying Configuration
 
-When the server starts, it will display the webhook configuration status:
+When the server starts, it will display the webhook configuration status and rate limit settings:
 
 ```
 🚀 Server running on port 4001
+⚡ Rate limit: 100 requests per 15 minutes
 Configured webhooks:
   ng-ai: ✓ configured
   ng-core: ✓ configured
@@ -196,6 +201,54 @@ DISCORD_USER_SARAHCODE=666677778888999000
 | Someone else requests review | Requested reviewer + PR author |
 | Self-action (any event) | No one |
 | Unmapped GitHub user | No one |
+
+## Rate Limiting
+
+The server includes built-in rate limiting to prevent abuse and DoS attacks. By default, it allows **100 requests per 15 minutes per IP address**.
+
+### Default Settings
+
+| Setting | Value | Description |
+|---------|-------|-------------|
+| Window | 15 minutes | Time window for rate limiting |
+| Max requests | 100 | Maximum requests allowed per window |
+
+### Customization
+
+You can customize rate limiting by adding environment variables to your `.env` file:
+
+```env
+# Rate limiting (optional)
+RATE_LIMIT_WINDOW_MS=900000  # 15 minutes in milliseconds
+RATE_LIMIT_MAX=100            # Max requests per window
+```
+
+### Behavior
+
+When a client exceeds the rate limit:
+- Request is blocked with `429 Too Many Requests` status
+- Response includes rate limit headers:
+  - `RateLimit-Limit`: Max requests per window
+  - `RateLimit-Remaining`: Remaining requests in current window
+  - `RateLimit-Reset`: Unix timestamp when window resets
+
+### Examples
+
+Different rate limit scenarios:
+
+```env
+# Strict (10 requests per minute)
+RATE_LIMIT_WINDOW_MS=60000
+RATE_LIMIT_MAX=10
+
+# Relaxed (500 requests per hour)
+RATE_LIMIT_WINDOW_MS=3600000
+RATE_LIMIT_MAX=500
+
+# Disabled for testing (extremely high limit)
+RATE_LIMIT_WINDOW_MS=1000
+RATE_LIMIT_MAX=1000000
+```
 
 ## Color Scheme
 
