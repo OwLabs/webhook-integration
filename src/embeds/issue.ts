@@ -6,8 +6,8 @@ import { truncateText } from "../utils/text";
 export function buildIssueEmbed(payload: IssuePayload): DiscordEmbed | null {
   const { action, issue, repository, sender } = payload;
 
-  let color = COLORS.gray;
-  let title = "";
+  let color: number;
+  let title: string;
 
   switch (action) {
     case "opened":
@@ -70,7 +70,11 @@ export function buildIssueCommentEmbed(
     fields: [
       { name: "Repository", value: repository.name, inline: true },
       { name: "Author", value: comment.user.login, inline: true },
-      { name: isPR ? "Pull Request" : "Issue", value: `#${issue.number}`, inline: true },
+      {
+        name: isPR ? "Pull Request" : "Issue",
+        value: `#${issue.number}`,
+        inline: true,
+      },
     ],
     author: {
       name: sender?.login || comment.user.login,

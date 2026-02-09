@@ -13,9 +13,9 @@ export function buildPullRequestEmbed(
     return null;
   }
 
-  let color = COLORS.gray;
-  let title = "";
-  let description = "";
+  let color: number;
+  let title: string;
+  let description: string;
 
   switch (action) {
     case "opened":
