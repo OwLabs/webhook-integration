@@ -10,11 +10,10 @@ app.use(express.json());
 const PORT = process.env.PORT || 3000;
 
 const WEBHOOKS: Record<string, string | undefined> = {
-  ai: process.env.DISCORD_WEBHOOK_AI,
-  core: process.env.DISCORD_WEBHOOK_CORE,
-  homeland: process.env.DISCORD_WEBHOOK_HOMELAND,
-  Homeland: process.env.DISCORD_WEBHOOK_HOMELAND,
-  web: process.env.DISCORD_WEBHOOK_WEB,
+  "ng-ai": process.env.DISCORD_WEBHOOK_AI,
+  "ng-core": process.env.DISCORD_WEBHOOK_CORE,
+  "ng-homeland": process.env.DISCORD_WEBHOOK_HOMELAND,
+  "ng-web": process.env.DISCORD_WEBHOOK_WEB,
 };
 
 // Color constants
