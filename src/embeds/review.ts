@@ -10,9 +10,9 @@ export function buildReviewEmbed(payload: ReviewPayload): DiscordEmbed | null {
     return null;
   }
 
-  let color = COLORS.gray;
-  let title = "";
-  let emoji = "";
+  let color: number;
+  let title: string;
+  let emoji: string;
 
   switch (review.state) {
     case "approved":
