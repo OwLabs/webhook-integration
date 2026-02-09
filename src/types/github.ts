@@ -69,6 +69,7 @@ export interface ReviewPayload extends BasePayload {
     title: string;
     html_url: string;
     number: number;
+    user?: GitHubUser;
   };
 }
 
