@@ -33,6 +33,42 @@ This project follows the [Conventional Commits](https://www.conventionalcommits.
 
 ---
 
+## [2.1.0] - PR Mentions & Rate Limiting
+
+### Added
+
+- **PR Mentions**: Automatically mention PR authors and reviewers on Discord
+  - Mention PR author when someone else acts on their PR
+  - Mention requested reviewers when review is requested
+  - Support all PR-related events (reviews, comments, status changes)
+  - Skip self-actions (no mention when actor is the same as target)
+- **ENV-based User Mapping**: GitHub username → Discord User ID mapping via environment variables
+  - Format: `DISCORD_USER_<GITHUB_USERNAME>=<discord_user_id>`
+  - Case-insensitive GitHub username matching
+- **Rate Limiting**: Built-in DoS protection with `express-rate-limit`
+  - Default: 100 requests per 15 minutes per IP
+  - Configurable via `RATE_LIMIT_WINDOW_MS` and `RATE_LIMIT_MAX` env vars
+  - Standard rate limit headers in responses
+- **E2E Tests**: Comprehensive end-to-end tests for PR mentions and rate limiter
+- **Unit Tests**: Added unit tests for mention utilities, PR mention logic, and logging
+- **New Utils Modules**:
+  - `src/utils/pr-mention.ts` - PR mention extraction and logic
+  - `src/utils/webhook-logger.ts` - Centralized logging utilities
+  - `src/utils/mention.ts` - Discord mention generation
+
+### Changed
+
+- Refactored webhook handler to use modular utilities
+- Updated GitHub types to include PR author in review payloads
+- Improved code organization and testability
+
+### Notes
+
+- This version adds significant new functionality without breaking changes
+- Migration guide: Add `DISCORD_USER_*` environment variables for PR mentions
+
+---
+
 ## [2.0.0] - Project restructure
 
 ### Added
