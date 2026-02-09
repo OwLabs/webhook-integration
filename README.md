@@ -43,6 +43,7 @@ DISCORD_WEBHOOK_WEB=https://discord.com/api/webhooks/...
 |----------|-------------|---------|
 | `PORT` | Server port | `3000` |
 | `DISCORD_WEBHOOK_*` | Discord webhook URLs for each repo | - |
+| `DISCORD_USER_*` | GitHub username to Discord user ID mappings | - |
 
 ### Verifying Configuration
 
@@ -147,6 +148,37 @@ src/
 | `ng-core` | `DISCORD_WEBHOOK_CORE` |
 | `ng-homeland` | `DISCORD_WEBHOOK_HOMELAND` |
 | `ng-web` | `DISCORD_WEBHOOK_WEB` |
+
+## PR Author Mentions
+
+When someone reviews a pull request, the PR author can be automatically pinged on Discord.
+
+### Setup
+
+Add GitHub username to Discord user ID mappings in your `.env` file:
+
+```env
+# Format: DISCORD_USER_<GITHUB_USERNAME>=<discord_user_id>
+DISCORD_USER_JOHNDOE=123456789012345678
+DISCORD_USER_JANESMITH=987654321098765432
+```
+
+**Note:** GitHub usernames are case-insensitive.
+
+### Behavior
+
+| Scenario | Discord Message |
+|----------|-----------------|
+| Someone else approves your PR | Embed + `@mention` ping |
+| Someone requests changes | Embed + `@mention` ping |
+| Self-review | Embed only (no ping) |
+| Comment-only review | Embed only (no ping) |
+| Unmapped GitHub user | Embed only (no ping) |
+
+### Getting Discord User IDs
+
+1. Enable **Developer Mode** in Discord (User Settings → Advanced)
+2. Right-click on a user → **Copy User ID**
 
 ## Color Scheme
 

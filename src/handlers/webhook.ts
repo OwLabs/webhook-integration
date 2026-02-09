@@ -2,7 +2,8 @@ import { Request, Response } from "express";
 import axios from "axios";
 import { WEBHOOKS } from "../config";
 import { buildEmbed } from "../embeds";
-import { GitHubPayload } from "../types/github";
+import { GitHubPayload, ReviewPayload } from "../types/github";
+import { mentionGithubUser } from "../utils/mention";
 
 export async function handleWebhook(req: Request, res: Response): Promise<void> {
   const eventHeader = req.headers["x-github-event"];
@@ -66,9 +67,38 @@ export async function handleWebhook(req: Request, res: Response): Promise<void> 
     return;
   }
 
+  // Check if we should ping the PR author for review events
+  let mention: string | null = null;
+  if (event === "pull_request_review") {
+    const reviewPayload = payload as ReviewPayload;
+    const prAuthor = reviewPayload.pull_request?.user?.login;
+    const reviewer = reviewPayload.review?.user?.login;
+    const reviewState = reviewPayload.review?.state;
+
+    const shouldPing =
+      prAuthor &&
+      reviewer &&
+      prAuthor !== reviewer &&
+      (reviewState === "approved" || reviewState === "changes_requested");
+
+    if (shouldPing) {
+      mention = mentionGithubUser(prAuthor);
+      if (!mention) {
+        console.log(`⚠️ No Discord mapping found for GitHub user: ${prAuthor}`);
+      } else {
+        console.log(`🔔 Pinging PR author: ${prAuthor} -> ${mention}`);
+      }
+    } else if (event === "pull_request_review") {
+      console.log("ℹ️ Review ping skipped (self-review, commented, or unmapped)");
+    }
+  }
+
   try {
-    console.log("📤 Sending to Discord...");
-    await axios.post(webhookUrl, { embeds: [embed] });
+    console.log("📤 Sending to Discord...", mention ? `(with mention: ${mention})` : "(embed only)");
+    await axios.post(webhookUrl, {
+      content: mention ?? undefined,
+      embeds: [embed],
+    });
     console.log("✅ Successfully sent to Discord");
   } catch (error) {
     console.error(`❌ Failed to send webhook for ${repoName}:`, error);
