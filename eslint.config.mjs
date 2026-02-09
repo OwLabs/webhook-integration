@@ -30,14 +30,16 @@ export default tseslint.config(
     },
   },
 
+  // Allow require() for jest.config.js
+  {
+    files: ["jest.config.js"],
+    rules: {
+      "@typescript-eslint/no-require-imports": "off",
+    },
+  },
+
   // Ignores
   {
-    ignores: [
-      "dist/**",
-      "node_modules/**",
-      "coverage/**",
-      "jest.config.js",
-      "eslint.config.mjs",
-    ],
+    ignores: ["dist/**", "node_modules/**", "coverage/**", "eslint.config.mjs"],
   },
 );

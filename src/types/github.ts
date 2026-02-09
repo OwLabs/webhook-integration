@@ -98,6 +98,7 @@ export interface IssueCommentPayload extends BasePayload {
     number: number;
     title: string;
     html_url: string;
+    user: GitHubUser;
     pull_request?: {
       html_url: string;
       diff_url: string;

@@ -37,6 +37,7 @@ DISCORD_WEBHOOK_AI=https://discord.com/api/webhooks/...
 DISCORD_WEBHOOK_CORE=https://discord.com/api/webhooks/...
 DISCORD_WEBHOOK_HOMELAND=https://discord.com/api/webhooks/...
 DISCORD_WEBHOOK_WEB=https://discord.com/api/webhooks/...
+DISCORD_WEBHOOK_INTEGRATION=https://discord.com/api/webhooks/...
 ```
 
 | Variable | Description | Default |
@@ -148,37 +149,53 @@ src/
 | `ng-core` | `DISCORD_WEBHOOK_CORE` |
 | `ng-homeland` | `DISCORD_WEBHOOK_HOMELAND` |
 | `ng-web` | `DISCORD_WEBHOOK_WEB` |
+| `webhook-integration` | `DISCORD_WEBHOOK_INTEGRATION` |
 
-## PR Author Mentions
+## PR Mentions
 
-When someone reviews a pull request, the PR author can be automatically pinged on Discord.
+When someone interacts with a pull request, relevant users can be automatically pinged on Discord.
+
+**Who gets mentioned:**
+- **PR Author** - When someone else acts on their PR (reviews, comments, etc.)
+- **Requested Reviewer** - When someone requests them to review a PR
+
+**Supported events:** All PR-related events (reviews, comments, status changes, etc.)
 
 ### Setup
 
-Add GitHub username to Discord user ID mappings in your `.env` file:
+Add **GitHub username → Discord User ID** mappings in your `.env` file:
 
 ```env
-# Format: DISCORD_USER_<GITHUB_USERNAME>=<discord_user_id>
-DISCORD_USER_JOHNDOE=123456789012345678
-DISCORD_USER_JANESMITH=987654321098765432
+# Format: DISCORD_USER_<GITHUB_USERNAME>=<DISCORD_USER_ID>
+DISCORD_USER_ALEXDEV=111122223333444455
+DISCORD_USER_SARAHCODE=666677778888999000
 ```
 
-**Note:** GitHub usernames are case-insensitive.
+**Important:** This maps GitHub usernames to Discord **User IDs** (not Discord usernames).
+
+| What | Example | Where to find it |
+|------|---------|------------------|
+| GitHub Username | `alexdev` | Your GitHub profile |
+| Discord Username | `Alex#1234` | Discord display name (not used) |
+| Discord User ID | `111122223333444455` | Discord Developer Mode → Copy User ID |
+
+### How to Get Discord User ID
+
+1. Enable **Developer Mode** in Discord (User Settings → Advanced)
+2. Right-click on the user
+3. Select **Copy User ID** (18-19 digit number)
 
 ### Behavior
 
-| Scenario | Discord Message |
-|----------|-----------------|
-| Someone else approves your PR | Embed + `@mention` ping |
-| Someone requests changes | Embed + `@mention` ping |
-| Self-review | Embed only (no ping) |
-| Comment-only review | Embed only (no ping) |
-| Unmapped GitHub user | Embed only (no ping) |
-
-### Getting Discord User IDs
-
-1. Enable **Developer Mode** in Discord (User Settings → Advanced)
-2. Right-click on a user → **Copy User ID**
+| Scenario | Who gets mentioned |
+|----------|-------------------|
+| Someone approves your PR | PR author |
+| Someone requests changes | PR author |
+| Someone comments on your PR | PR author |
+| You request someone to review | Requested reviewer |
+| Someone else requests review | Requested reviewer + PR author |
+| Self-action (any event) | No one |
+| Unmapped GitHub user | No one |
 
 ## Color Scheme
 
