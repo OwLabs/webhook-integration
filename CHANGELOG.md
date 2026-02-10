@@ -33,6 +33,15 @@ This project follows the [Conventional Commits](https://www.conventionalcommits.
 
 ---
 
+## [2.1.1] - Update readme using dummy name 
+
+
+### Changed
+
+- Update readme file to use dummy name.
+
+---
+
 ## [2.1.0] - PR Mentions & Rate Limiting
 
 ### Added
