@@ -150,11 +150,11 @@ src/
 
 | Repository | Environment Variable |
 |------------|---------------------|
-| `ng-ai` | `DISCORD_WEBHOOK_AI` |
-| `ng-core` | `DISCORD_WEBHOOK_CORE` |
-| `ng-homeland` | `DISCORD_WEBHOOK_HOMELAND` |
-| `ng-web` | `DISCORD_WEBHOOK_WEB` |
-| `webhook-integration` | `DISCORD_WEBHOOK_INTEGRATION` |
+| `Repo_1` | `DISCORD_WEBHOOK_Repo_1` |
+| `Repo_2` | `DISCORD_WEBHOOK_Repo_2` |
+| `Repo_3` | `DISCORD_WEBHOOK_Repo_3` |
+| `Repo_4` | `DISCORD_WEBHOOK_Repo_4` |
+| `Repo_5` | `DISCORD_WEBHOOK_Repo_5` |
 
 ## PR Mentions
 
